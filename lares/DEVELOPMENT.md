@@ -105,8 +105,14 @@ model what a scheduler needs; adding Redis + a worker (arq/RQ) that calls
   `errors` list (adapters classify failures as `MissingCredentialError` /
   `EgressBlockedError` / other, so "the source's network is blocked" and
   "the source rejected our request" don't look the same).
-- `review_queue_item` table / a future `/api/review-queue` endpoint — entity
-  resolution matches awaiting human confirmation.
+- `review_queue_item` table / `GET /api/review-queue` — entity resolution
+  matches awaiting human confirmation. Approve (`POST
+  /api/review-queue/{id}/approve`) merges the candidate into the matched
+  record — re-pointing its claims and relationships, filling any fields the
+  survivor is missing, logging a `merge_log` row, then removing the
+  now-redundant duplicate. Reject (`.../reject`) confirms they're genuinely
+  different and leaves both records untouched. See the Review Queue page in
+  the web app.
 
 ## Sensitive assets
 

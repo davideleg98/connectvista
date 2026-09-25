@@ -60,6 +60,33 @@ cd lares/web && npm run dev -- --port 5183               # frontend
 - No MVT tiles, no LLM extraction pipeline, no Country Expansion Agent
   tooling — all explicitly deferred with a stated reason, not forgotten.
 
+## Verified state (last checked 2026-09-25)
+
+A session stood this up for real against a locally-installed Postgres 16 +
+PostGIS + pg_trgm + pgvector (this sandbox's Docker still can't pull
+images — see "Option B" in `DEVELOPMENT.md`) and drove it end to end, not
+just unit tests: all 3 migrations applied, `seed_all.py` loaded, all 21
+backend tests passed, the TED and GLEIF adapters ran live against their
+offline fixtures (proving idempotency — a second run updates, not
+duplicates — and real create/read paths), and the web app was driven with
+a real browser (map, filters, infrastructure/organisation object views,
+coverage matrix, source registry all confirmed against live API data, not
+mocks). Acceptance tests A–L in the founding spec all passed. Basemap
+tiles don't render (tile.openstreetmap.org is blocked by this sandbox's
+egress policy) — markers from our own API render fine regardless; that's
+an environment constraint, not a product bug.
+
+While verifying, found and fixed a real gap: `ReviewQueueItem` recorded
+`matched_entity_id` but never the id of the row the resolver actually
+created for the ambiguous candidate — so a human approving a match would
+have had nothing to act on. Added `created_entity_id` (migration
+`e57b9e0d8f2f`), wired it in `resolver.py`, and built the missing
+`GET/POST /api/review-queue` endpoints plus a Review Queue page in the web
+app — approve re-points claims/relationships and fields onto the survivor
+and logs `merge_log`; reject just closes the item. Covered by
+`test_review_queue_approve_merges_and_repoints_evidence` and
+`test_review_queue_reject_keeps_both_records` in `tests/test_api.py`.
+
 ## When you pick this back up
 
 Don't restart from a clean slate. Read the docs above, run the test suite,

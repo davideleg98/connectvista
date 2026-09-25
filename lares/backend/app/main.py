@@ -1,7 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import coverage, infrastructures, map as map_router, organisations, procurement, search, sources
+from app.api.routers import (
+    coverage,
+    infrastructures,
+    map as map_router,
+    organisations,
+    procurement,
+    review_queue,
+    search,
+    sources,
+)
 from app.core.config import get_settings
 
 settings = get_settings()
@@ -28,6 +37,7 @@ app.include_router(search.router)
 app.include_router(procurement.router)
 app.include_router(sources.router)
 app.include_router(coverage.router)
+app.include_router(review_queue.router)
 
 
 @app.get("/api/health")

@@ -1,0 +1,9 @@
+# Local dev config (copy from .env.example)
+.env
+
+# Backend (Python)
+backend/.venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+backend/data/raw/

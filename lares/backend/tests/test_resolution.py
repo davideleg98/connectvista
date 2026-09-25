@@ -30,12 +30,16 @@ def test_high_confidence_fuzzy_match_merges(db):
 
 
 def test_ambiguous_fuzzy_match_creates_new_and_queues_review(db):
-    resolve_organisation(db, {}, {"legal_name": "Rotterdam Port", "hq_country": "NL"})
+    id1, _ = resolve_organisation(db, {}, {"legal_name": "Rotterdam Port", "hq_country": "NL"})
     id2, created2 = resolve_organisation(db, {}, {"legal_name": "Rotterdam Port Group", "hq_country": "NL"})
     assert created2 is True  # never silently merged, never dropped
     queued = db.query(ReviewQueueItem).filter(ReviewQueueItem.entity_type == "organisation").all()
     assert len(queued) == 1
     assert queued[0].status == "pending"
+    # the item must record which row it created, or a human approving the
+    # match later has nothing to merge
+    assert str(queued[0].created_entity_id) == id2
+    assert str(queued[0].matched_entity_id) == id1
 
 
 def test_unrelated_names_do_not_match_or_queue(db):

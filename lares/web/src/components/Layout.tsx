@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { to: '/organisations', label: 'Organisations' },
   { to: '/coverage', label: 'Coverage' },
   { to: '/sources', label: 'Sources' },
+  { to: '/review-queue', label: 'Review Queue' },
 ]
 
 export default function Layout() {

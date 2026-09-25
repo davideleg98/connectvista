@@ -15,6 +15,12 @@ async function request<T>(path: string, params?: Record<string, string | number 
   return resp.json() as Promise<T>
 }
 
+async function post<T>(path: string): Promise<T> {
+  const resp = await fetch(API_BASE + path, { method: 'POST' })
+  if (!resp.ok) throw new Error(`API error ${resp.status}`)
+  return resp.json() as Promise<T>
+}
+
 export interface InfrastructureSummary {
   id: string
   kind: 'asset' | 'cluster' | 'network'
@@ -129,4 +135,21 @@ export const api = {
     }>('/api/search', { q }),
   coverage: () => request<{ matrix: Record<string, Record<string, { candidates: number; with_operator: number; outreach_ready: number }>> }>('/api/coverage'),
   sources: () => request<{ items: any[] }>('/api/sources'),
+  reviewQueue: (status: string = 'pending') =>
+    request<{ items: ReviewQueueRow[] }>('/api/review-queue', { status }),
+  approveReview: (id: string) => post<{ status: string; surviving_id: string }>(`/api/review-queue/${id}/approve`),
+  rejectReview: (id: string) => post<{ status: string }>(`/api/review-queue/${id}/reject`),
+}
+
+export interface ReviewQueueRow {
+  id: string
+  entity_type: string
+  status: string
+  match_score: number
+  match_signals: { method: string; score: number } | null
+  candidate_entity_id: string | null
+  candidate_name: string | null
+  matched_entity_id: string | null
+  matched_name: string | null
+  created_at: string
 }

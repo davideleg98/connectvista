@@ -126,3 +126,70 @@ def test_coverage_matrix_counts_by_country_and_category(db):
     matrix = resp.json()["matrix"]
     assert matrix["IT"]["maritime"]["candidates"] >= 1
     assert matrix["IT"]["maritime"]["with_operator"] >= 1
+
+
+def test_review_queue_approve_merges_and_repoints_evidence(db):
+    from app.resolution.resolver import resolve_organisation
+
+    survivor_id, _ = resolve_organisation(db, {}, {"legal_name": "Rotterdam Port", "hq_country": "NL"})
+    candidate_id, created = resolve_organisation(
+        db, {}, {"legal_name": "Rotterdam Port Group", "hq_country": "NL", "website": "https://example.com"}
+    )
+    assert created is True
+
+    source = get_or_create_source(
+        db, source_registry_id=None, publisher="Test", title="Test", url="https://example.com/x",
+        published_at=date.today(), content_hash="review-queue-test-hash",
+    )
+    record_evidence(
+        db, subject_type="organisation", subject_id=candidate_id, predicate="SOURCE_SUPPORTS_CLAIM",
+        object_literal="Rotterdam Port Group", confidence=40, verification_state="unverified",
+        source=source, excerpt="test excerpt",
+    )
+    db.commit()
+
+    client = _client(db)
+    item_id = client.get("/api/review-queue").json()["items"][0]["id"]
+
+    resp = client.post(f"/api/review-queue/{item_id}/approve")
+    assert resp.status_code == 200
+    assert resp.json()["surviving_id"] == survivor_id
+
+    # candidate row is gone, survivor picked up the field it was missing
+    assert db.get(Organisation, candidate_id) is None
+    survivor = db.get(Organisation, survivor_id)
+    assert survivor.website == "https://example.com"
+
+    # the claim that pointed at the candidate now points at the survivor —
+    # evidence is never destroyed by a merge
+    from app.models.provenance import Claim
+
+    repointed = db.query(Claim).filter(
+        Claim.subject_type == "organisation", Claim.subject_id == survivor.id
+    ).all()
+    assert any(c.object_literal == "Rotterdam Port Group" for c in repointed)
+
+    assert client.get("/api/review-queue").json()["items"] == []
+
+
+def test_review_queue_reject_keeps_both_records(db):
+    from app.resolution.resolver import resolve_organisation
+
+    resolve_organisation(db, {}, {"legal_name": "Rotterdam Port", "hq_country": "NL"})
+    candidate_id, created = resolve_organisation(
+        db, {}, {"legal_name": "Rotterdam Port Group", "hq_country": "NL"}
+    )
+    assert created is True
+    db.commit()
+
+    client = _client(db)
+    item_id = client.get("/api/review-queue").json()["items"][0]["id"]
+
+    resp = client.post(f"/api/review-queue/{item_id}/reject")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "rejected"
+
+    # both organisations still exist, untouched
+    assert db.get(Organisation, candidate_id) is not None
+    assert client.get("/api/review-queue").json()["items"] == []
+    assert client.get("/api/review-queue", params={"status": "rejected"}).json()["items"][0]["id"] == item_id

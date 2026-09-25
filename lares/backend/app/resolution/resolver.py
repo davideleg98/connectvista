@@ -96,6 +96,7 @@ def resolve_organisation(db: Session, natural_key: dict[str, Any], fields: dict[
                         candidate_natural_key=natural_key,
                         candidate_fields=fields,
                         matched_entity_id=row.id,
+                        created_entity_id=created_id,
                         match_score=int(row.score * 100),
                         match_signals={"method": "trigram_name_similarity", "score": float(row.score)},
                     )
@@ -158,6 +159,7 @@ def resolve_infrastructure_asset(
                         candidate_natural_key=natural_key,
                         candidate_fields=fields,
                         matched_entity_id=row.id,
+                        created_entity_id=created_id,
                         match_score=int(row.score * 100),
                         match_signals={"method": "trigram_name_similarity", "score": float(row.score)},
                     )

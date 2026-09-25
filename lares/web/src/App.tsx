@@ -8,6 +8,7 @@ import OrganisationDirectoryPage from './pages/OrganisationDirectoryPage'
 import SearchPage from './pages/SearchPage'
 import CoveragePage from './pages/CoveragePage'
 import SourcesPage from './pages/SourcesPage'
+import ReviewQueuePage from './pages/ReviewQueuePage'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/coverage" element={<CoveragePage />} />
         <Route path="/sources" element={<SourcesPage />} />
+        <Route path="/review-queue" element={<ReviewQueuePage />} />
       </Route>
     </Routes>
   )
