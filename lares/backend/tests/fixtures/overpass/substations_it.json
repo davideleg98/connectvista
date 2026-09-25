@@ -1,0 +1,15 @@
+{
+  "elements": [
+    {
+      "type": "way",
+      "id": 123456789,
+      "center": { "lat": 41.9028, "lon": 12.4964 },
+      "tags": {
+        "power": "substation",
+        "name": "Example Substation Roma Nord",
+        "voltage": "380000",
+        "addr:country": "IT"
+      }
+    }
+  ]
+}

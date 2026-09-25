@@ -1,0 +1,46 @@
+name: lares
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: lares
+      POSTGRES_PASSWORD: lares
+      POSTGRES_DB: lares
+    ports:
+      - "5432:5432"
+    volumes:
+      - lares_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lares"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://lares:lares@db:5432/lares
+      LARES_WEB_ORIGIN: http://localhost:5183
+    ports:
+      - "8123:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+
+  web:
+    build: ./web
+    environment:
+      VITE_API_BASE_URL: http://localhost:8123
+    ports:
+      - "5183:5183"
+    depends_on:
+      - backend
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+
+volumes:
+  lares_pg_data:

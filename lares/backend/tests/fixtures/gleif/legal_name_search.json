@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "type": "lei-records",
+      "id": "969500PLACEHOLDER001",
+      "attributes": {
+        "lei": "969500PLACEHOLDER001",
+        "entity": {
+          "legalName": { "name": "Example Grid Operator S.p.A.", "language": "it" },
+          "legalForm": { "id": "8Y6G" },
+          "legalAddress": {
+            "country": "IT",
+            "city": "Roma",
+            "addressLines": ["Viale Egidio Galbani 70"]
+          },
+          "headquartersAddress": {
+            "country": "IT",
+            "city": "Roma"
+          },
+          "status": "ACTIVE"
+        },
+        "registration": {
+          "status": "ISSUED",
+          "initialRegistrationDate": "2013-01-15T00:00:00Z"
+        }
+      },
+      "relationships": {
+        "direct-parent": {
+          "links": { "related": "https://api.gleif.org/api/v1/lei-records/PLACEHOLDER0000000001/direct-parent" }
+        }
+      }
+    }
+  ],
+  "meta": { "pagination": { "total": 1 } }
+}

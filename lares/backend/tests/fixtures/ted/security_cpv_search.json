@@ -1,0 +1,16 @@
+{
+  "notices": [
+    {
+      "publication-number": "000000-2026",
+      "notice-title": { "eng": "Supply and installation of perimeter surveillance systems for port facility" },
+      "buyer-name": ["Example Port Authority"],
+      "buyer-country": ["IT"],
+      "publication-date": "2026-06-01",
+      "deadline-receipt-tender-date-lot": "2026-07-15",
+      "classification-cpv": ["35120000", "35125300"],
+      "notice-value": { "amount": 2500000, "currency": "EUR" },
+      "winner-name": []
+    }
+  ],
+  "totalNoticeCount": 1
+}
